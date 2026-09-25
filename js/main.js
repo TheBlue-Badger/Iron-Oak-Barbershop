@@ -26,6 +26,16 @@ var SERVICES = {
 
 var BARBERS = ["Any available barber", "Marcus Reyes", "Devon Cole", "Sam Okafor"];
 
+/* Promo codes shown on offers.html and recognised on the booking form.
+   Keys are matched case-insensitively against whatever the customer types. */
+var PROMOS = {
+  "FIRSTCUT15": "15% off, new clients only",
+  "FULLHOUSE10": "10% off The Full Package",
+  "TUESDAYTRIM": "10% off Classic Haircuts, Tuesdays only",
+  "REFERRAL20": "R20 off, when you refer a friend",
+  "STUDENT10": "10% off with valid student ID"
+};
+
 /* ---------- Mobile nav ---------- */
 function initNav() {
   var toggle = document.querySelector("[data-nav-toggle]");
@@ -116,6 +126,7 @@ function buildWhatsAppUrl(details, booking) {
     "Date: " + booking.dateLabel,
     "Time: " + booking.timeLabel
   ];
+  if (booking.promoCode) lines.push("Promo code: " + booking.promoCode);
   if (booking.notes) lines.push("Notes: " + booking.notes);
   var text = encodeURIComponent(lines.join("\n"));
   return "https://wa.me/" + SHOP.whatsappNumber + "?text=" + text;
@@ -156,6 +167,27 @@ function initBookingForm() {
   var dateInput = form.querySelector("[name=date]");
   var timeSelect = form.querySelector("[name=time]");
   var dateError = form.querySelector("[data-date-error]");
+  var promoInput = form.querySelector("[name=promo]");
+  var promoHint = form.querySelector("[data-promo-hint]");
+
+  function refreshPromoHint() {
+    if (!promoHint) return;
+    var code = promoInput.value.trim().toUpperCase();
+    if (!code) {
+      promoHint.textContent = "";
+      return;
+    }
+    if (PROMOS[code]) {
+      promoHint.textContent = "Applied: " + PROMOS[code] + ".";
+      promoHint.style.color = "var(--brass)";
+    } else {
+      promoHint.textContent = "We don't recognise that code, but we'll check it when you come in.";
+      promoHint.style.color = "var(--ink-soft)";
+    }
+  }
+  if (promoInput) {
+    promoInput.addEventListener("input", refreshPromoHint);
+  }
 
   /* Populate services + barbers */
   Object.keys(SERVICES).forEach(function (key) {
@@ -172,10 +204,16 @@ function initBookingForm() {
     barberSelect.appendChild(opt);
   });
 
-  /* Preselect a service if arriving from a "Book this" link, e.g. contact.html?service=skin-fade */
+  /* Preselect a service and/or promo code if arriving from a link, e.g.
+     contact.html?service=skin-fade or contact.html?promo=FIRSTCUT15#booking */
   var params = new URLSearchParams(window.location.search);
   var preselect = params.get("service");
   if (preselect && SERVICES[preselect]) serviceSelect.value = preselect;
+  var promoParam = params.get("promo");
+  if (promoParam && promoInput) {
+    promoInput.value = promoParam.toUpperCase();
+    refreshPromoHint();
+  }
 
   var today = new Date();
   dateInput.min = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
@@ -228,6 +266,7 @@ function initBookingForm() {
     var barber = barberSelect.value;
     var name = form.querySelector("[name=fullname]").value.trim();
     var notes = form.querySelector("[name=notes]").value.trim();
+    var promoCode = promoInput ? promoInput.value.trim().toUpperCase() : "";
     var dateParts = dateInput.value.split("-").map(Number);
     var timeParts = timeSelect.value.split(":").map(Number);
 
@@ -240,7 +279,7 @@ function initBookingForm() {
     var calendarDetails = {
       title: service.name + " at " + SHOP.name,
       description: "Appointment: " + service.name + (barber !== BARBERS[0] ? " with " + barber : "") +
-        ". Booked via ironandoak.com." + (notes ? " Notes: " + notes : ""),
+        ". Booked via ironandoak.com." + (promoCode ? " Promo code: " + promoCode + "." : "") + (notes ? " Notes: " + notes : ""),
       location: SHOP.address,
       start: start,
       end: end
@@ -256,6 +295,7 @@ function initBookingForm() {
       ["Date", dateLabel],
       ["Time", timeLabel]
     ];
+    if (promoCode) rows.push(["Promo code", promoCode]);
     rows.forEach(function (r) {
       var li = document.createElement("li");
       li.innerHTML = "<span>" + r[0] + "</span><span>" + r[1] + "</span>";
@@ -270,6 +310,7 @@ function initBookingForm() {
       barber: barber,
       dateLabel: dateLabel,
       timeLabel: timeLabel,
+      promoCode: promoCode,
       notes: notes
     });
 
@@ -300,6 +341,7 @@ function initBookingForm() {
     resetBtn.addEventListener("click", function () {
       form.reset();
       refreshSlots();
+      refreshPromoHint();
       form.classList.remove("hide");
       document.querySelector("[data-confirm-panel]").classList.remove("show");
     });

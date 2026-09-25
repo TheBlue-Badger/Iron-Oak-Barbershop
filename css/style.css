@@ -469,7 +469,7 @@ hr.rule { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
   padding: 6px;
 }
 .modal-close svg { width: 20px; height: 20px; }
-.modal-card .promo-code {
+.promo-code {
   display: inline-block;
   font-family: var(--font-display);
   letter-spacing: 0.04em;
@@ -477,8 +477,24 @@ hr.rule { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
   border: 1px dashed var(--brass);
   padding: 8px 16px;
   border-radius: var(--radius);
-  margin: 14px 0 22px;
 }
+.modal-card .promo-code { margin: 14px 0 22px; }
+
+/* Offers page ------------------------------------------------------------ */
+.promo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.promo-card {
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--oxblood);
+  border-radius: var(--radius);
+  padding: 28px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.promo-card h3 { margin: 16px 0 8px; }
+.promo-card p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.promo-card .terms { font-size: 0.8rem; color: var(--ink-soft); opacity: 0.85; margin-top: 10px; }
+.promo-card .btn { margin-top: 20px; align-self: flex-start; }
 
 /* Terms page ------------------------------------------------------------ */
 .terms-body h2 { margin-top: 44px; font-size: 1.35rem; }
@@ -511,14 +527,14 @@ hr.rule { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
   .hero-grid { grid-template-columns: 1fr; }
   .hero-art { position: static; transform: none; width: 70%; margin: 40px auto 0; opacity: 0.85; }
   .preview-grid { grid-template-columns: repeat(2, 1fr); }
-  .team-grid, .values-grid, .steps-row, .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .team-grid, .values-grid, .steps-row, .gallery-grid, .promo-grid { grid-template-columns: repeat(2, 1fr); }
   .contact-layout { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 620px) {
   section { padding: 56px 0; }
-  .preview-grid, .team-grid, .values-grid, .steps-row, .footer-grid, .gallery-grid { grid-template-columns: 1fr; }
+  .preview-grid, .team-grid, .values-grid, .steps-row, .footer-grid, .gallery-grid, .promo-grid { grid-template-columns: 1fr; }
   .whatsapp-float { right: 16px; bottom: 16px; width: 50px; height: 50px; }
   .whatsapp-float svg { width: 24px; height: 24px; }
   .form-grid { grid-template-columns: 1fr; }
